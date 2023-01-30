@@ -1,5 +1,14 @@
 const morgan = require('morgan');
 const express = require('express');
+
+//___Firebase___//
+const admin = require("firebase-admin")
+const serviceAccount = require("../db/ecommerce-be-ch-firebase-adminsdk-m6y02-593b737273.json")
+
+//___Mongo___//
+import mongoose from 'mongoose';
+import * as moder from './models/productosModel'
+
 const { Server: HTTPServer } = require('http')
 const { Server: IOServer } = require('socket.io')
 
@@ -27,6 +36,12 @@ app.use(express.static('./public'))
 //Starting the server
 httpServer.listen(8080, () => {
     console.log('Server On')
+})
+
+
+//___Firebase___//
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
 })
 
 //websocket
