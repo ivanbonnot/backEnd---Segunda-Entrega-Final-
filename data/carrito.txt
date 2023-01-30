@@ -1,0 +1,206 @@
+class FirebaseManager {
+  constructor(firebaseConfig) {
+    this.firebaseConfig = firebaseConfig;
+    this.firebase = require("firebase/app");
+    require("firebase/database");
+    this.firebase.initializeApp(this.firebaseConfig);
+    this.db = this.firebase.database();
+  }
+  
+  getData(path) {
+    return this.db.ref(path).once("value");
+  }
+  
+  setData(path, data) {
+    return this.db.ref(path).set(data);
+  }
+  
+  updateData(path, data) {
+    return this.db.ref(path).update(data);
+  }
+  
+  deleteData(path) {
+    return this.db.ref(path).remove();
+  }
+}
+
+
+Here is an example of a JavaScript class for managing a Firebase database:
+This class takes in the firebaseConfig object, which includes the necessary configuration details for connecting to a Firebase project. The class initializes the firebase app and database instances, and provides methods for interacting with the database, such as getData, setData, updateData, and deleteData.
+
+To use this class, create an instance of it and call its methods as needed:
+
+const firebaseManager = new FirebaseManager({
+  apiKey: "API_KEY",
+  authDomain: "PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://PROJECT_ID.firebaseio.com",
+  projectId: "PROJECT_ID",
+  storageBucket: "PROJECT_ID.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "APP_ID",
+});
+
+firebaseManager
+  .getData("/some/path")
+  .then((snapshot) => {
+    console.log(snapshot.val());
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+
+
+MONGODB
+
+const MongoClient = require("mongodb").MongoClient;
+
+class MongoDBManager {
+  constructor(url) {
+    this.url = url;
+    this.dbName = "myDatabase";
+  }
+  
+  connect() {
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(this.url, { useNewUrlParser: true }, (err, client) => {
+        if (err) {
+          reject(err);
+        } else {
+          console.log("Connected to MongoDB server");
+          this.client = client;
+          this.db = client.db(this.dbName);
+          resolve(this.db);
+        }
+      });
+    });
+  }
+  
+  getData(collection, query) {
+    return this.db.collection(collection).find(query).toArray();
+  }
+  
+  setData(collection, data) {
+    return this.db.collection(collection).insertOne(data);
+  }
+  
+  updateData(collection, query, data) {
+    return this.db.collection(collection).updateOne(query, { $set: data });
+  }
+  
+  deleteData(collection, query) {
+    return this.db.collection(collection).deleteOne(query);
+  }
+  
+  close() {
+    return this.client.close();
+  }
+}
+
+
+This class takes in a MongoDB connection URL and creates a connection to a MongoDB server. The class provides methods for interacting with the database, such as getData, setData, updateData, and deleteData. The close method is used to close the connection to the MongoDB server.
+
+To use this class, create an instance of it, call the connect method, and then call its other methods as needed:
+
+const mongoDBManager = new MongoDBManager("mongodb://localhost:27017");
+
+mongoDBManager
+  .connect()
+  .then(() => {
+    return mongoDBManager.getData("myCollection", {});
+  })
+  .then((docs) => {
+    console.log(docs);
+    return mongoDBManager.close();
+  })
+  .catch((error) => {
+    console.error(error);
+    mongoDBManager.close();
+  });
+
+
+  class in javascript to creat, read, update and delete documents in a mongodb database
+
+const MongoClient = require("mongodb").MongoClient;
+
+class MongoDB {
+  constructor(url) {
+    this.url = url;
+    this.dbName = "myDatabase";
+  }
+  
+  connect() {
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(this.url, { useNewUrlParser: true }, (err, client) => {
+        if (err) {
+          reject(err);
+        } else {
+          console.log("Connected to MongoDB server");
+          this.client = client;
+          this.db = client.db(this.dbName);
+          resolve(this.db);
+        }
+      });
+    });
+  }
+  
+  create(collection, data) {
+    return this.db.collection(collection).insertOne(data);
+  }
+  
+  read(collection, query) {
+    return this.db.collection(collection).find(query).toArray();
+  }
+  
+  update(collection, query, data) {
+    return this.db.collection(collection).updateOne(query, { $set: data });
+  }
+  
+  delete(collection, query) {
+    return this.db.collection(collection).deleteOne(query);
+  }
+  
+  close() {
+    return this.client.close();
+  }
+}
+
+
+This class takes in a MongoDB connection URL and creates a connection to a MongoDB server. The class provides methods for creating, reading, updating, and deleting documents in a MongoDB collection, such as create, read, update, and delete. The close method is used to close the connection to the MongoDB server.
+
+To use this class, create an instance of it, call the connect method, and then call its other methods as needed:
+
+const mongoDB = new MongoDB("mongodb://localhost:27017");
+
+mongoDB
+  .connect()
+  .then(() => {
+    return mongoDB.create("myCollection", { name: "John Doe" });
+  })
+  .then(() => {
+    return mongoDB.read("myCollection", { name: "John Doe" });
+  })
+  .then((docs) => {
+    console.log("Read:", docs);
+    return mongoDB.update("myCollection", { name: "John Doe" }, { age: 30 });
+  })
+  .then(() => {
+    return mongoDB.read("myCollection", { name: "John Doe" });
+  })
+  .then((docs) => {
+    console.log("Updated:", docs);
+    return mongoDB.delete("myCollection", { name: "John Doe" });
+  })
+  .then(() => {
+    return mongoDB.read("myCollection", { name: "John Doe" });
+  })
+  .then((docs) => {
+    console.log("Deleted:", docs);
+    return mongoDB.close();
+  })
+  .catch((error) => {
+    console.error(error);
+    mongoDB.close();
+  });
+
+
+
