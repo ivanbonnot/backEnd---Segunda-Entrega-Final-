@@ -1,14 +1,6 @@
 const morgan = require('morgan');
 const express = require('express');
 
-//___Firebase___//
-const admin = require("firebase-admin")
-const serviceAccount = require("../db/ecommerce-be-ch-firebase-adminsdk-m6y02-593b737273.json")
-
-//___Mongo___//
-import mongoose from 'mongoose';
-import * as moder from './models/productosModel'
-
 const { Server: HTTPServer } = require('http')
 const { Server: IOServer } = require('socket.io')
 
@@ -38,11 +30,11 @@ httpServer.listen(8080, () => {
     console.log('Server On')
 })
 
+//___ Error 404 ___//
+app.use(function(req, res) {
+    res.status(404).send({error: -1, descripcion: 'Ruta no implementada'})
+  })
 
-//___Firebase___//
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-})
 
 //websocket
 io.on('connection', async socket => {
