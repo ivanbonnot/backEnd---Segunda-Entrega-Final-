@@ -1,22 +1,22 @@
 const { Router } = require('express')
 const productosRouter = new Router()
+const productos = require('../controllers/productoController');
 
-const { productos } = require('../class/contenedor')
 
 const adm = true
 
 
-productosRouter.get('/', async (req, res) => {
-    const allProducts = await productos.getAll()
+productosRouter.get('/', (req, res) => {
+    const allProducts =  productos.findAll()
     res.json(
         allProducts
     );
 })
 
 
-productosRouter.get('/:id', async (req, res) => {
+productosRouter.get('/:id', (req, res) => {
     const { id } = req.params
-    const productById = await productos.getById(parseInt(id))
+    const productById =  productos.findOne(parseInt(id))
 
     if (productById) {
         res.json(productById)
@@ -26,12 +26,13 @@ productosRouter.get('/:id', async (req, res) => {
 })
 
 
-productosRouter.post('/', async (req, res) => {
+productosRouter.post('/', (req, res) => {
+    console.log(req.body)
     if (adm) {
         const { foto, title, price, description } = req.body
 
         if (foto && title && price && description) {
-            await productos.save(req.body)
+             productos.create(req.body)
             res.redirect('/')
         } else {
             res.send('Invalido, todos los campos son obligatorios')
@@ -43,16 +44,16 @@ productosRouter.post('/', async (req, res) => {
 })
 
 
-productosRouter.put('/:id', async (req, res) => {
+productosRouter.put('/:id', (req, res) => {
 
     if (adm) {
         const id = Number(req.params.id)
         const { image, title, price, description } = req.body
 
-        if (await productos.getById(id) && (image && title && price && description)) {
-            let allProducts = await productos.getAll()
+        if ( productos.findOne(id) && (image && title && price && description)) {
+            let allProducts =  productos.findAll()
             allProducts[id - 1] = { "id": id, ...req.body }
-            productos.saveFile(allProducts)
+            productos.update(allProducts)
             res.send(req.body)
         } else {
             res.status(404).send({ error: 'id invalid / missing fields' })
@@ -65,16 +66,14 @@ productosRouter.put('/:id', async (req, res) => {
 })
 
 
-
-
-productosRouter.delete('/:id', async (req, res) => {
+productosRouter.delete('/:id', (req, res) => {
 
     if (adm) {
         const { id } = req.params
-        const deleteProdById = await productos.getById(parseInt(id))
+        const deleteProdById =  productos.findOne(parseInt(id))
 
         if (deleteProdById) {
-            await productos.deleteById(parseInt(id))
+             productos.delete(parseInt(id))
             res.send({ deleted: deleteProdById })
 
         } else {
