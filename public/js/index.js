@@ -1,7 +1,7 @@
 const formAgregarProducto = document.getElementById('agregarProducto')
 
 
-//------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------//
 
 formAgregarProducto.addEventListener('submit', e => {
 
@@ -28,8 +28,6 @@ formAgregarProducto.addEventListener('submit', e => {
     },
     body: productJSON,
   });
-
-
 
   // socket.emit('update', producto);
   // formAgregarProducto.reset()

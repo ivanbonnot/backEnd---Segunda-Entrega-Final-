@@ -5,6 +5,7 @@ const ObjectId = Schema.ObjectId;
 
 const productoSchema = new Schema({
   id: ObjectId,
+  timestamp: { type: Number, require: true },
   title: { type: String, required: true },
   thumbnail: { type: String, required: true },
   description: { type: String, required: true },

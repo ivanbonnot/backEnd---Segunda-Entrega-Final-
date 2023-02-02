@@ -1,7 +1,9 @@
 import { Router } from "express";
 import Product from "../Class/Product.js";
-import productos from '../controllers/controller.MongoDB.js';
-import { DBController } from '../config/connectToDB.js';
+import productos from '../controllers/controllerMongoDB.js';
+import { dbController } from '../config/connectToDB.js';
+
+// import  productoModel  from "../models/productoModel.js";
 
 
 const productsRouter = Router();
@@ -9,7 +11,7 @@ const productsRouter = Router();
 const adm = true
  
 productsRouter.get('/', async (req, res) => {
-    const productos = await DBController.getProducts();
+    const productos = await dbController.getProducts();
 
   res.json(productos);
 })
@@ -45,8 +47,9 @@ productsRouter.post('/', async (req, res) => {
 
             console.log(productToAdd)
             console.log(req.body)
-
-            await DBController.saveProduct(productToAdd)
+            // const product = new productoModel(productToAdd);
+            // await product.save();
+            dbController.saveProduct(productToAdd)
             res.json('Guardado')
         // } else {
         //     res.send('Invalido, todos los campos son obligatorios')
