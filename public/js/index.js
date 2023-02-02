@@ -4,40 +4,54 @@ const formAgregarProducto = document.getElementById('agregarProducto')
 //------------------------------------------------------------------------------------
 
 formAgregarProducto.addEventListener('submit', e => {
-    e.preventDefault()
-    fetch('http://localhost:8080/api/productos/', {
-      method:'POST'
-    })
-    
-    // const producto = {
-    //     title: formAgregarProducto[0].value,
-    //     price: formAgregarProducto[1].value,
-    //     foto: formAgregarProducto[2].value,
-    //     descripcion: formAgregarProducto[3].value,
-    //     codigo: formAgregarProducto[4].value,
-    //     stock: formAgregarProducto[5].value
-    // }
-    // socket.emit('update', producto);
-    // formAgregarProducto.reset()
+
+  e.preventDefault()
+  
+  const producto = {
+    title: formAgregarProducto[0].value,
+    price: formAgregarProducto[1].value,
+    thumbnail: formAgregarProducto[2].value,
+    description: formAgregarProducto[3].value,
+    code: formAgregarProducto[4].value,
+    stock: formAgregarProducto[5].value
+  }
+
+  const productJSON = JSON.stringify(producto)
+  console.log(producto)
+  console.log(productJSON)
+
+  fetch('http://localhost:8080/api/productos/', 
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: productJSON,
+  });
+
+
+
+  // socket.emit('update', producto);
+  // formAgregarProducto.reset()
 })
 
 
-socket.on('productos', productos => {
-    makeHtmlTable(productos).then(html => {
-        document.getElementById('productos').innerHTML = html
-    })
-});
+// socket.on('productos', productos => {
+//     makeHtmlTable(productos).then(html => {
+//         document.getElementById('productos').innerHTML = html
+//     })
+// });
 
 
-async function makeHtmlTable(productos) {
-    return await fetch('./views/lista.hbs')
-        .then(respuesta => respuesta.text())
-        .then(plantilla => {
-            const template = Handlebars.compile(plantilla);
-            const html = template({ productos })
-            return html
-        })
-}
+// async function makeHtmlTable(productos) {
+//   return await fetch('./views/lista.hbs')
+//     .then(respuesta => respuesta.text())
+//     .then(plantilla => {
+//       const template = Handlebars.compile(plantilla);
+//       const html = template({ productos })
+//       return html
+//     })
+// }
 
 //-------------------------------------------------------------------------------------
 
@@ -57,7 +71,7 @@ document.getElementById("newCartBtn").addEventListener("click", ev => {
     .then((response) => response.text())
     .then((text) => {
       alert('Se ha creado carrito con id: ' + text)
-      socket.emit('newCart')
+      // socket.emit('newCart')
     })
 })
 
@@ -82,7 +96,7 @@ document.getElementById("listItemCartBtn").addEventListener("click", ev => {
     .then((data) => {
       makeHtmlTable(data).then(html => {
         document.getElementById('itemCartList').innerHTML = html
-    })
+      })
       idCartList.value = ''
     })
 })
@@ -99,7 +113,7 @@ document.getElementById("deleteCartBtn").addEventListener("click", ev => {
     .then((text) => {
       alert('Carrito ' + idCartDel.value + ' borrado.')
       idCartDel.value = ''
-      socket.emit('newCart')
+      // socket.emit('newCart')
     })
 })
 

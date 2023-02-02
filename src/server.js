@@ -1,14 +1,14 @@
 import morgan from 'morgan'
+
 import { connectToDb } from "./config/connectToDb.js";
-import cartRouter from "./routes/cart";
-import productsRouter from "./routes/products";
+// import cartRouter from "./routes/cart";
+import productsRouter from "./routes/products.js";
 
 import express from 'express'
 const app = express();
 
 //__Elegir DB, "firebase" o "mongo" __//
 const db = "mongo"
-
 
 //Settings
 app.set('port', process.env.PORT || 8080)
@@ -28,8 +28,8 @@ connectToDb(db).then(() => {
 })
 
 //Routes
-app.use('/api/productos', productsRouter)
-app.use('/api/carrito', cartRouter)
+app.use("/api/productos", productsRouter)
+// app.use('/api/carrito', cartRouter)
 
 //___ Error 404 ___//
 app.use(function (req, res) {

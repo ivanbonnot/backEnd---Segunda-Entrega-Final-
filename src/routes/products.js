@@ -1,14 +1,15 @@
 import { Router } from "express";
+import Product from "../Class/Product.js";
+import productos from '../controllers/controller.MongoDB.js';
+import { DBController } from '../config/connectToDB.js';
 
-import productos from '../controllers/controller.MongoDB';
-import {dbController } from '../config/connectToDB';
 
 const productsRouter = Router();
 
 const adm = true
  
 productsRouter.get('/', async (req, res) => {
-    const productos = await dbController.getProducts();
+    const productos = await DBController.getProducts();
 
   res.json(productos);
 })
@@ -26,17 +27,30 @@ productsRouter.get('/:id', (req, res) => {
 })
 
 
-productsRouter.post('/', (req, res) => {
-    console.log(req.body)
+productsRouter.post('/', async (req, res) => {
     if (adm) {
-        const { foto, title, price, description } = req.body
+        // const { title, description, code, thumbnail, price, stock } = req.body
 
-        if (foto && title && price && description) {
-             productos.create(req.body)
-            res.redirect('/')
-        } else {
-            res.send('Invalido, todos los campos son obligatorios')
-        }
+        // if (title && description && code && thumbnail && price && stock) {
+            const { title, description, code, thumbnail, price, stock } = req.body;
+
+            const productToAdd = new Product(
+              title,
+              description,
+              code,
+              thumbnail,
+              price,
+              stock
+            );
+
+            console.log(productToAdd)
+            console.log(req.body)
+
+            await DBController.saveProduct(productToAdd)
+            res.json('Guardado')
+        // } else {
+        //     res.send('Invalido, todos los campos son obligatorios')
+        // }
 
     } else {
         res.send('Error: 403 Ruta: "api/productos" Método: "POST" No Autorizada ')
