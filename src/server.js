@@ -1,18 +1,13 @@
-const morgan = require('morgan');
-const express = require('express');
+import morgan from 'morgan'
+import { connectToDb } from "./config/connectToDb.js";
+import cartRouter from "./routes/cart";
+import productsRouter from "./routes/products";
 
-const { Server: HTTPServer } = require('http')
-const { Server: IOServer } = require('socket.io')
-
-const handlebars = require('express-handlebars')
-const path = require('path')
-
+import express from 'express'
 const app = express();
 
-const httpServer = new HTTPServer(app)
-const io = new IOServer(httpServer)
-
-const { productos, carrito } = require('./class/contenedor')
+//__Elegir DB, "firebase" o "mongo" __//
+const db = "mongo"
 
 
 //Settings
@@ -26,50 +21,17 @@ app.use(express.json())
 app.use(express.static('./public'))
 
 //Starting the server
-httpServer.listen(8080, () => {
-    console.log('Server On')
+connectToDb(db).then(() => {
+    app.listen(8080, () => {
+        console.log('Server On')
+    })
 })
 
-//___ Error 404 ___//
-app.use(function(req, res) {
-    res.status(404).send({error: -1, descripcion: 'Ruta no implementada'})
-  })
-
-
-//websocket
-io.on('connection', async socket => {
-    console.log('Nuevo cliente conectado!');
-
-    // carga inicial de productos
-    socket.emit('productos', await productos.getAll());
-    socket.emit('carritos', await carrito.getAll());
-
-    // actualizacion de productos
-    socket.on('update', async producto => {
-        products.save(producto)
-        io.sockets.emit('productos', await productos.getAll());
-    })
-
-    socket.on('newCart', async () => {
-        socket.emit('carritos', await carrito.getAll())
-      })
-});
-
-
-  
-//HBS
-app.engine(
-    "hbs",
-    handlebars.engine({
-        extname: ".hbs"
-    })
-);
-app.set("view engine", "hbs");
-app.set('views', path.resolve(__dirname, '../public'))
-
 //Routes
-app.use('/api/productos', require('./routes/products'))
-app.use('/api/carrito', require('./routes/cart'))
+app.use('/api/productos', productsRouter)
+app.use('/api/carrito', cartRouter)
 
-
-
+//___ Error 404 ___//
+app.use(function (req, res) {
+    res.status(404).send({ error: -1, descripcion: 'Ruta no implementada' })
+})

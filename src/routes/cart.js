@@ -1,72 +1,86 @@
-const express = require('express')
-const fs = require('fs')
-const { v4: uuidv4 } = require('uuid')
+import { Router } from "express";
+import Cart from "../Class/Cart.js";
+import { DBController } from "../config/connectToDb.js";
 
-const { productos, carrito } = require('../class/contenedor')
-const Cart = require('../class/cartClass')
+const cartRouter = Router();
 
-const { Router } = express 
-const carritoRouter = Router() 
+cartRouter.post("/", async (req, res) => {
+  const cartToAdd = new Cart();
 
+  await DBController.saveCart(cartToAdd);
 
-/* ------- router carrito --------*/ 
+  res.json("Ok");
+});
 
+cartRouter.delete("/:id", async (req, res) => {
+  const { id } = req.params;
 
-//------------POST Carrito
-carritoRouter.post('/', async (req, res) => {
-  const idNewCart = uuidv4()
-  const cart = new Cart(`./data/${idNewCart}.txt`)
-  cart.saveFile({ id: idNewCart, timestamp: new Date().toLocaleString(), productos: [] })
-  carrito.addCart(idNewCart)
-  res.send(idNewCart)
-})
+  const cart = await DBController.getCartById(id);
 
+  if (!cart) {
+    res.status(404).json({ error: "Carrito no encontrado" });
+    return;
+  }
 
-//----------DELETE carrito
-carritoRouter.delete('/:id', async (req, res) => {
-  const id = req.params.id
-  fs.unlink(`./data/${id}.txt`, (error) => {
-    error ? console.log('No se ha podido borrar') : console.log('Borrado exitoso')
-  })
-  await carrito.deleteById(id)
-  res.send('Borrado exitoso')
-})
+  await DBController.deleteCart(id);
 
+  res.json(id);
+});
 
-//------------GET productos del carrito
-carritoRouter.get('/:id/productos', async (req, res) => {
-  const id = req.params.id
-  const cart = new Cart(`./data/${id}.txt`)
-  const productos = await cart.getAll()
-  res.send(productos)
-})
+cartRouter.get("/:id/productos", async (req, res) => {
+  const { id } = req.params;
 
+  const cart = await DBController.getCartById(id);
 
-//---------POST producto en carrito
-carritoRouter.post('/:id/productos/:id_prod', async (req, res) => {
-  const cartId = req.params.id
-  const itemId = req.params.id_prod
-  const item = await productos.getById(itemId)
-  await fs.readFile(`./data/${cartId}.txt`, 'utf8', (err, data) => {
-    const carrito = JSON.parse(data)
-    carrito.productos.push(item)
-    fs.promises.writeFile(
-      `./data/${cartId}.txt`, JSON.stringify( carrito, null, 2 )
-    )
-  })
-  
-  res.send('ok')
-})
+  if (!cart) {
+    res.status(404).json({ error: "Carrito no encontrado" });
+    return;
+  }
 
+  res.json(cart.products);
+});
 
-//---------DEL producto en carrito
-carritoRouter.delete('/:id/productos/:id_prod', async (req, res) => {
-  const cartId = req.params.id
-  const itemId = req.params.id_prod
-  const cart = new Cart(`./data/${cartId}.txt`)
-  await cart.deleteById( itemId )
-  res.send('Producto borrado exitosamente')
-})
+cartRouter.post("/:id/productos/:id_prod", async (req, res) => {
+  const { id, id_prod } = req.params;
 
+  const cart = await DBController.getCartById(id);
+  const product = await DBController.getProductById(id_prod);
 
-module.exports = carritoRouter
+  if (!cart || !product) {
+    res.status(404).json({ error: "Carrito o producto no encontrado" });
+    return;
+  }
+
+  await DBController.addProductInCart(id, id_prod);
+
+  res.json(id);
+});
+
+cartRouter.delete("/:id/productos/:id_prod", async (req, res) => {
+  const { id, id_prod } = req.params;
+
+  const cart = await DBController.getCartById(id);
+  const product = await DBController.getProductById(id_prod);
+
+  if (!cart || !product) {
+    res.status(404).json({ error: "Carrito o producto no encontrado" });
+    return;
+  }
+
+  const productToDelete = cart.products.find(
+    (product) => product.id === id_prod
+  );
+
+  if (!productToDelete) {
+    res
+      .status(404)
+      .json({ error: "Producto no se encuentra dentro del carrito" });
+    return;
+  }
+
+  await DBController.deleteProductInCart(id, id_prod);
+
+  res.json(id);
+});
+
+export default cartRouter;

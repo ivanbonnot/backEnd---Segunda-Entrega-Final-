@@ -1,20 +1,20 @@
-const { Router } = require('express')
-const productosRouter = new Router()
-const productos = require('../controllers/productoController');
+import { Router } from "express";
 
+import productos from '../controllers/controller.MongoDB';
+import {dbController } from '../config/connectToDB';
+
+const productsRouter = Router();
 
 const adm = true
+ 
+productsRouter.get('/', async (req, res) => {
+    const productos = await dbController.getProducts();
 
-
-productosRouter.get('/', (req, res) => {
-    const allProducts =  productos.findAll()
-    res.json(
-        allProducts
-    );
+  res.json(productos);
 })
 
 
-productosRouter.get('/:id', (req, res) => {
+productsRouter.get('/:id', (req, res) => {
     const { id } = req.params
     const productById =  productos.findOne(parseInt(id))
 
@@ -26,7 +26,7 @@ productosRouter.get('/:id', (req, res) => {
 })
 
 
-productosRouter.post('/', (req, res) => {
+productsRouter.post('/', (req, res) => {
     console.log(req.body)
     if (adm) {
         const { foto, title, price, description } = req.body
@@ -44,7 +44,7 @@ productosRouter.post('/', (req, res) => {
 })
 
 
-productosRouter.put('/:id', (req, res) => {
+productsRouter.put('/:id', (req, res) => {
 
     if (adm) {
         const id = Number(req.params.id)
@@ -66,7 +66,7 @@ productosRouter.put('/:id', (req, res) => {
 })
 
 
-productosRouter.delete('/:id', (req, res) => {
+productsRouter.delete('/:id', (req, res) => {
 
     if (adm) {
         const { id } = req.params
@@ -87,5 +87,5 @@ productosRouter.delete('/:id', (req, res) => {
 })
 
 
-module.exports = productosRouter;
+export default productsRouter;
 

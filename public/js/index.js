@@ -1,5 +1,5 @@
 const formAgregarProducto = document.getElementById('agregarProducto')
-const socket = io.connect();
+
 
 //------------------------------------------------------------------------------------
 
@@ -29,8 +29,8 @@ socket.on('productos', productos => {
 });
 
 
-function makeHtmlTable(productos) {
-    return fetch('./views/lista.hbs')
+async function makeHtmlTable(productos) {
+    return await fetch('./views/lista.hbs')
         .then(respuesta => respuesta.text())
         .then(plantilla => {
             const template = Handlebars.compile(plantilla);

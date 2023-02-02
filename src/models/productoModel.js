@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
@@ -18,10 +18,10 @@ const cartSchema = new Schema({
 })
 
 
-const productoModel = mongoose.model('product', productoSchema)
-const cartModel = mongoose.model('cart', cartSchema)
+const productoModel = mongoose.model('Product', productoSchema)
 
-module.exports = { productoModel, cartModel }
+
+export default productoModel
 
 // module.exports = mongoose => {
 //   const Producto = mongoose.model(
