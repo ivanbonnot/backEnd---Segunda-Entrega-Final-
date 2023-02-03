@@ -1,7 +1,7 @@
 import morgan from 'morgan'
 
 import { connectToDb } from "./config/connectToDb.js";
-// import cartRouter from "./routes/cart";
+ import cartRouter from "./routes/cart.js";
 import productsRouter from "./routes/products.js";
 
 import express from 'express'
@@ -29,7 +29,7 @@ connectToDb(db).then(() => {
 
 //Routes
 app.use("/api/productos", productsRouter)
-// app.use('/api/carrito', cartRouter)
+app.use("/api/carrito", cartRouter)
 
 //___ Error 404 ___//
 app.use(function (req, res) {

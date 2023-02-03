@@ -17,8 +17,6 @@ formAgregarProducto.addEventListener('submit', e => {
   }
 
   const productJSON = JSON.stringify(producto)
-  console.log(producto)
-  console.log(productJSON)
 
   fetch('http://localhost:8080/api/productos/', 
   {

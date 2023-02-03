@@ -1,26 +1,24 @@
 import { Router } from "express";
 import Product from "../Class/Product.js";
-import productos from '../controllers/controllerMongoDB.js';
-import { dbController } from '../config/connectToDB.js';
+import dbController from "../controllers/controllerMongoDB.js";
 
-// import  productoModel  from "../models/productoModel.js";
 
 
 const productsRouter = Router();
 
 const adm = true
- 
+
 productsRouter.get('/', async (req, res) => {
     const productos = await dbController.getProducts();
 
-  res.json(productos);
+    res.json(productos);
 })
 
 
-productsRouter.get('/:id', (req, res) => {
+productsRouter.get('/:id', async (req, res) => {
     const { id } = req.params
-    const productById =  productos.findOne(parseInt(id))
-
+    const productById = await dbController.getProductById(id)
+    console.log(id)
     if (productById) {
         res.json(productById)
     } else {
@@ -34,23 +32,23 @@ productsRouter.post('/', async (req, res) => {
         // const { title, description, code, thumbnail, price, stock } = req.body
 
         // if (title && description && code && thumbnail && price && stock) {
-            const { title, description, code, thumbnail, price, stock } = req.body;
+        const { title, description, code, thumbnail, price, stock } = req.body;
 
-            const productToAdd = new Product(
-              title,
-              description,
-              code,
-              thumbnail,
-              price,
-              stock
-            );
+        const product = new Product(
+            title,
+            description,
+            code,
+            thumbnail,
+            price,
+            stock
+        );
 
-            console.log(productToAdd)
-            console.log(req.body)
-            // const product = new productoModel(productToAdd);
-            // await product.save();
-            dbController.saveProduct(productToAdd)
-            res.json('Guardado')
+        console.log(product)
+        console.log(req.body)
+        // const product = new productoModel(product);
+        // await product.save();
+        dbController.saveProduct(product)
+        res.json('Guardado')
         // } else {
         //     res.send('Invalido, todos los campos son obligatorios')
         // }
@@ -61,38 +59,41 @@ productsRouter.post('/', async (req, res) => {
 })
 
 
-productsRouter.put('/:id', (req, res) => {
-
+productsRouter.put('/:id', async (req, res) => {
     if (adm) {
-        const id = Number(req.params.id)
-        const { image, title, price, description } = req.body
+        const { id } = req.params
+        const { title, description, code, thumbnail, price, stock } = req.body;
 
-        if ( productos.findOne(id) && (image && title && price && description)) {
-            let allProducts =  productos.findAll()
-            allProducts[id - 1] = { "id": id, ...req.body }
-            productos.update(allProducts)
-            res.send(req.body)
+        const productUpdate = new Product(
+            title,
+            description,
+            code,
+            thumbnail,
+            price,
+            stock
+        );
+
+        const productById = await dbController.getProductById(id)
+
+        if (productById) {
+            await dbController.updateProduct(id, productUpdate)
+            res.send(productUpdate)
         } else {
             res.status(404).send({ error: 'id invalid / missing fields' })
         }
-
     } else {
         res.send('Error: 403 Ruta: "api/productos/:Id" Método: "PUT" No Autorizada ')
     }
-
 })
 
 
-productsRouter.delete('/:id', (req, res) => {
-
+productsRouter.delete('/:id', async (req, res) => {
     if (adm) {
         const { id } = req.params
-        const deleteProdById =  productos.findOne(parseInt(id))
+        const deleteProdById = await dbController.deleteProduct(id)
 
         if (deleteProdById) {
-             productos.delete(parseInt(id))
             res.send({ deleted: deleteProdById })
-
         } else {
             res.status(404).send({ error: 'Product not found' })
         }
